@@ -33,7 +33,7 @@ on:
 jobs:
   create-release:
     name: Create Release
-    if: env.GITHUB_REF_TYPE == 'branch'
+    if: ${{ env.GITHUB_REF_TYPE == 'branch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
