@@ -51,27 +51,27 @@ jobs:
         run: |
           version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/p' test.hpp | tr '\n' '.' | sed '$s/.$//')
           sed -i "s/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1\"\"/" test.hpp
-          echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION" >> $GITHUB_ENV
+          echo "DEPLOYTEST_VERSION_NUMBER=$version" >> $GITHUB_ENV
         shell: bash
         working-directory: main/include
 
       - name: Compute Version Number (Prerelease)
-        if: ${{ inputs.versionType != 'release' }} && ${{ inputs.versionPrerelease == '' }}
+        if: ${{ (inputs.versionType != 'release') && (inputs.versionPrerelease == '') }}
         run: |
           version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/p' test.hpp | tr '\n' '.' | sed '$s/.$//')
           sed -i "s/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
-          echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION-$VERSION_SUFFIX" >> $GITHUB_ENV
+          echo "DEPLOYTEST_VERSION_NUMBER=$version-$VERSION_SUFFIX" >> $GITHUB_ENV
         shell: bash
         working-directory: main/include
         env:
           VERSION_SUFFIX: ${{ inputs.versionType }}
 
       - name: Compute Version Number (Prerelease, with suffix)
-        if: ${{ inputs.versionType != 'release' }} && ${{ inputs.versionPrerelease != '' }}
+        if: ${{ (inputs.versionType != 'release') && (inputs.versionPrerelease != '') }}
         run: |
           version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/p' test.hpp | tr '\n' '.' | sed '$s/.$//')
           sed -i "s/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
-          echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION-$VERSION_SUFFIX" >> $GITHUB_ENV
+          echo "DEPLOYTEST_VERSION_NUMBER=$version-$VERSION_SUFFIX" >> $GITHUB_ENV
         shell: bash
         working-directory: main/include
         env:
@@ -84,7 +84,7 @@ jobs:
         working-directory: main
 
       - name: Write Changelog (With Issues)
-        if: ${{ inputs.changes != '' }} && ${{ inputs.issues == '' }}
+        if: ${{ (inputs.changes != '') && (inputs.issues == '') }}
         run: |
           echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -98,7 +98,7 @@ jobs:
           NOTES: ${{ inputs.notes }}
 
       - name: Write Changelog (W/O Issues)
-        if: ${{ inputs.changes != '' }} && ${{ inputs.issues != '' }}
+        if: ${{ (inputs.changes != '') && (inputs.issues != '') }}
         run: |
           echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n### Known Issues\n\n$ISSUES\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -164,7 +164,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
       - name: Post-release Version Number Update (Release)
-        if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME == 'master' }}
+        if: ${{ (inputs.versionType == 'release') && (env.GITHUB_REF_NAME == 'master') }}
         run: |
           sed -iE 's/(#define DEPLOYTEST_VERSION_MINOR *)([0-9]+)/\1$((\2+1))/e' include/test.hpp
           sed -i 's/\(#define DEPLOYTEST_VERSION_REVISION *\)\([0-9]+\)/\10/' include/test.hpp
@@ -176,7 +176,7 @@ jobs:
         working-directory: main
 
       - name: Post-release Version Number Update (Prerelease)
-        if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME != 'master' }}
+        if: ${{ (inputs.versionType == 'release') && (env.GITHUB_REF_NAME != 'master') }}
         run: |
           sed -i 's/\(#define DEPLOYTEST_VERSION_REVISION *\)\([0-9]+\)/\1$((\2+1))/' include/test.hpp
           sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
