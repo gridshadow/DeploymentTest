@@ -183,13 +183,13 @@ jobs:
 
       - name: Copy Documentation to GitHub Pages
         run: |
-          if [ -d latest ]
+          if [ -d $DEPLOYTEST_VERSION_NUMBER ]
           then
             git rm -rf $DEPLOYTEST_VERSION_NUMBER/*
           else
-            mkdir latest
+            mkdir $DEPLOYTEST_VERSION_NUMBER
           fi
-          cp -r ../main/docs/html/* $DEPLOYTEST_VERSION_NUMBER/
+          cp -r ../main/docs/html/. $DEPLOYTEST_VERSION_NUMBER
           cp ../main/docs/latex/refman.pdf $DEPLOYTEST_VERSION_NUMBER/deployment-test-doc.pdf
           git add $DEPLOYTEST_VERSION_NUMBER
         shell: bash

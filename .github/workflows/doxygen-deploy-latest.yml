@@ -50,7 +50,7 @@ jobs:
           else
             mkdir latest
           fi
-          cp -r ../main/docs/html/* latest/
+          cp -r ../main/docs/html/. latest
           cp ../main/docs/latex/refman.pdf latest/deployment-test-doc.pdf
           git add latest
         shell: bash
