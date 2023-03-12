@@ -1,3 +1,5 @@
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/gridshadow/DeploymentTest/doxygen-deploy-latest.yml?label=docs%20build)
+
 # Deployment test
 
 A test repository to test GitHub Actions to do the following:
@@ -17,3 +19,7 @@ git reset --hard
 touch .nojekyll
 git push origin gh-pages
 ```
+
+## TODO
+
+Especially in the `create-release` action with have race conditions and and possible problems on push

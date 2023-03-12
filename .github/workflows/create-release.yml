@@ -30,6 +30,8 @@ on:
         type: string
         required: false
 
+concurrency: deploy
+
 jobs:
   create-release:
     name: Create Release
@@ -118,6 +120,7 @@ jobs:
           git config user.email 'gridshadow@users.noreply.github.com'
           git commit -am "Creating release: $DEPLOYTEST_VERSION_NUMBER"
           git tag v$DEPLOYTEST_VERSION_NUMBER
+          git push
           git push origin v$DEPLOYTEST_VERSION_NUMBER
         shell: bash
         working-directory: main
@@ -162,6 +165,16 @@ jobs:
         working-directory: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+
+      - name: Post-release Version Number Update (Prerelease)
+        if: ${{ (inputs.versionType == 'release') && (env.GITHUB_REF_NAME == 'master') }}
+        run: |
+          sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1"-DEV"/' include/test.hpp
+          git add test.hpp
+          git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
+          git push
+        shell: bash
+        working-directory: main
 
       - name: Post-release Version Number Update (Release)
         if: ${{ (inputs.versionType == 'release') && (env.GITHUB_REF_NAME == 'master') }}
