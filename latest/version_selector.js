@@ -9,8 +9,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 let latest = document.createElement("option");
                 latest.value = 'latest';
-                latest.innerText = 'Latest';
-                latest.selected = versions.indexOf(current) < 0;
+                if(versions.indexOf(current) < 0) {
+                    latest.innerText = 'Latest (' + current + ')';
+                    latest.selected = true;
+                } else {
+                    latest.innerText = 'Latest';
+                }
                 select.append(latest);
 
                 let arrayLength = versions.length;

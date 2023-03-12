@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Deployment Test: Deployment test</title>
+<title>Deployment Test: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -41,7 +41,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Deployment Test
-   &#160;<span id="projectnumber">0.1.0-DEV+5ca9848</span>
+   &#160;<span id="projectnumber">0.1.0-DEV+e2e5f5c</span>
    </div>
    <div id="projectbrief">Test repo. for deployment tasks</div>
   </td>
@@ -104,22 +104,28 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">Deployment test </div>  </div>
+<div class="title">Deployment Test Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_README"></a> A test repository to test GitHub Actions to do the following:</p>
+<div class="textblock"><p><a class="anchor" id="md_README"></a> <img src="https://img.shields.io/github/actions/workflow/status/gridshadow/DeploymentTest/doxygen-deploy-latest.yml?label=docs%20build" alt="GitHub Workflow Status" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md0"></a>
+Deployment test</h1>
+<p>A test repository to test GitHub Actions to do the following:</p>
 <ul>
 <li>Create release and publish Doxygen HTML documentation to a version specific subdirectory in the <code>gh-pages</code> branch</li>
 <li>Publish the Doxygen for the <em>latest</em> (development) code to the <code>latest</code> subdirectory in the gh-pages branch</li>
 <li>Create branches for patches to major.minor release builds</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md1"></a>
-Setup</h1>
+<h2><a class="anchor" id="autotoc_md1"></a>
+Setup</h2>
 <p>Create the <code>gh-pages</code> branch for a repository: </p><div class="fragment"><div class="line">git checkout --orphan gh-pages</div>
 <div class="line">git reset --hard</div>
 <div class="line">touch .nojekyll</div>
 <div class="line">git push origin gh-pages</div>
-</div><!-- fragment --> </div></div><!-- PageDoc -->
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md2"></a>
+TODO</h2>
+<p>Especially in the <code>create-release</code> action with have race conditions and and possible problems on push </p>
+</div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
