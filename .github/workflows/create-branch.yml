@@ -1,0 +1,39 @@
+name: Create Branch From Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+ create-branch:
+    name: Create Branch
+    if: github.GITHUB_REF_TYPE == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Valid Tag
+        run: |
+          if ! [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.0$ ]]
+          then
+            echo Not a major.minor.0 release tag
+            exit 1
+          fi
+        shell: bash
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Create Branch
+        run: git checkout -b ${GITHUB_REF_NAME%.*}
+        shell: bash
+
+      - name: Update Version Number
+        run: |
+          sed -i 's/(#define DEPLOYTEST_VERSION_REVISION *)([0-9]+)/\1$((\2+1))/' include/test.hpp
+          sed -i 's/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
+        shell: bash
+
+      - name: Commit changes
+        run: |
+          git config user.name 'gridshadow'
+          git config user.email 'gridshadow@users.noreply.github.com'
+          git commit -am "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
+          git push origin ${GITHUB_REF_NAME%.*}
