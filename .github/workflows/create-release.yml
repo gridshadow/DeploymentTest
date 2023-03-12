@@ -46,19 +46,19 @@ jobs:
         shell: bash
         working-directory: main
 
-      - name: Update Version Number
+      - name: Compute Version Number (Release)
         if: ${{ inputs.versionType == 'release' }}
         run: |
-          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/' test.hpp | tr '\n' '.' | sed '$s/.$//')
-          sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"\"/" test.hpp
+          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/p' test.hpp | tr '\n' '.' | sed '$s/.$//')
+          sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"\"/p" test.hpp
           echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION" >> $GITHUB_ENV
         shell: bash
         working-directory: main/include
 
-      - name: Update Version Number
+      - name: Compute Version Number (Prerelease)
         if: ${{ inputs.versionType != 'release' }} && ${{ inputs.versionPrerelease == '' }}
         run: |
-          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/' test.hpp | tr '\n' '.' | sed '$s/.$//')
+          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/p' test.hpp | tr '\n' '.' | sed '$s/.$//')
           sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
           echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION-$VERSION_SUFFIX" >> $GITHUB_ENV
         shell: bash
@@ -66,10 +66,10 @@ jobs:
         env:
           VERSION_SUFFIX: ${{ inputs.versionType }}
 
-      - name: Update Version Number
+      - name: Compute Version Number (Prerelease, with suffix)
         if: ${{ inputs.versionType != 'release' }} && ${{ inputs.versionPrerelease != '' }}
         run: |
-          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/' test.hpp | tr '\n' '.' | sed '$s/.$//')
+          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/p' test.hpp | tr '\n' '.' | sed '$s/.$//')
           sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
           echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION-$VERSION_SUFFIX" >> $GITHUB_ENV
         shell: bash
@@ -83,7 +83,7 @@ jobs:
         shell: bash
         working-directory: main
 
-      - name: Write Changelog
+      - name: Write Changelog (With Issues)
         if: ${{ inputs.changes != '' }} && ${{ inputs.issues == '' }}
         run: |
           echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
@@ -97,7 +97,7 @@ jobs:
           CHANGELOG: ${{ inputs.changes }}
           NOTES: ${{ inputs.notes }}
 
-      - name: Write Changelog
+      - name: Write Changelog (W/O Issues)
         if: ${{ inputs.changes != '' }} && ${{ inputs.issues != '' }}
         run: |
           echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n### Known Issues\n\n$ISSUES\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
@@ -152,7 +152,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
-      - name: Create Release
+      - name: Create Prerelease
         if: ${{ inputs.versionType != 'release' }}
         run: |
           gh release create "v$DEPLOYTEST_VERSION_NUMBER" -t "v$DEPLOYTEST_VERSION_NUMBER" --verify-tag \
@@ -163,7 +163,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
-      - name: Post-release Version Number Update
+      - name: Post-release Version Number Update (Release)
         if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME == 'master' }}
         run: |
           sed -iE 's/(#define DEPLOYTEST_VERSION_MINOR *)([0-9]+)/\1$((\2+1))/e' include/test.hpp
@@ -175,7 +175,7 @@ jobs:
         shell: bash
         working-directory: main
 
-      - name: Post-release Version Number Update
+      - name: Post-release Version Number Update (Prerelease)
         if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME != 'master' }}
         run: |
           sed -i 's/(#define DEPLOYTEST_VERSION_REVISION *)([0-9]+)/\1$((\2+1))/' include/test.hpp
