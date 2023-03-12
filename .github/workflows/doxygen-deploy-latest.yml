@@ -28,7 +28,7 @@ jobs:
         working-directory: main/include
 
       - name: Run Doxygen
-        run: (cat Doxyfile; echo "HTML_HEADER=header.html") | doxygen -
+        run: (cat Doxyfile; echo "HTML_HEADER=header.html"; echo "HTML_EXTRA_FILES=version_selector.js") | doxygen -
         shell: bash
         working-directory: main
 

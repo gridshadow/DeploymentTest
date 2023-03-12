@@ -56,7 +56,7 @@ jobs:
         working-directory: main/include
 
       - name: Update Version Number
-        if: ${{ inputs.versionType != 'release' }}
+        if: ${{ inputs.versionType != 'release' }} && ${{ inputs.versionPrerelease == '' }}
         run: |
           version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/' test.hpp | tr '\n' '.' | sed '$s/.$//')
           sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
@@ -64,7 +64,18 @@ jobs:
         shell: bash
         working-directory: main/include
         env:
-          VERSION_SUFFIX: "${{ inputs.versionType }}${{ inputs.versionPrerelease }}"
+          VERSION_SUFFIX: ${{ inputs.versionType }}
+
+      - name: Update Version Number
+        if: ${{ inputs.versionType != 'release' }} && ${{ inputs.versionPrerelease != '' }}
+        run: |
+          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/' test.hpp | tr '\n' '.' | sed '$s/.$//')
+          sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
+          echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION-$VERSION_SUFFIX" >> $GITHUB_ENV
+        shell: bash
+        working-directory: main/include
+        env:
+          VERSION_SUFFIX: "${{ inputs.versionType }}.${{ inputs.versionPrerelease }}"
 
       - name: Strip Prerelease Changelogs
         if: ${{ inputs.versionType == 'release' }}
@@ -111,8 +122,8 @@ jobs:
         shell: bash
         working-directory: main
 
-      - name: Run Doxygen
-        run: (cat Doxyfile; echo "HTML_HEADER=header.html") | doxygen -
+      - name: Build Standalone Documentation
+        run: (cat Doxyfile; echo "HTML_HEADER=header.html"; echo "HTML_EXTRA_FILES=version_selector.js") | doxygen -
         shell: bash
         working-directory: main
 
@@ -175,7 +186,12 @@ jobs:
         shell: bash
         working-directory: main
 
-      - name: Checkout Repository
+      - name: Build Online Documentation
+        run: Doxyfile | doxygen -
+        shell: bash
+        working-directory: main
+
+      - name: Checkout Documentation GitHub Pages
         uses: actions/checkout@v3
         with:
           ref: gh-pages
