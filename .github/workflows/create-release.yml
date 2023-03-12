@@ -38,7 +38,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        path: main
+        with:
+          path: main
 
       - name: Install Doxygen
         run: sudo apt-get install doxygen doxygen-latex graphviz zip make -y
@@ -176,9 +177,9 @@ jobs:
 
       - name: Checkout Repository
         uses: actions/checkout@v3
-        path: ph-pages
         with:
           ref: gh-pages
+          path: gh-pages
 
       - name: Copy Documentation to GitHub Pages
         run: |
