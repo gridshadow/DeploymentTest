@@ -29,7 +29,7 @@ var NAVTREE =
       [ "Setup", "index.html#autotoc_md1", null ],
       [ "TODO", "index.html#autotoc_md2", null ]
     ] ],
-    [ "Changle Log", "md_CHANGELOG.html", [
+    [ "Change Log", "md_CHANGELOG.html", [
       [ "0.1.0-rc.1", "md_CHANGELOG.html#autotoc_md4", null ]
     ] ],
     [ "Namespaces", "namespaces.html", [
