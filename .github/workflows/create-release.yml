@@ -88,7 +88,8 @@ jobs:
       - name: Write Changelog (With Issues)
         if: ${{ (inputs.changes != '') && (inputs.issues == '') }}
         run: |
-          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
+          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md.tmp
+          mv CHANGELOG.md.tmp CHANGELOG.md
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "DEPLOYTEST_RELEASE_NOTES<<$EOF" >> $GITHUB_ENV
           echo -e "$NOTES\n\n## Changes\n\n$CHANGELOG" >> $GITHUB_ENV
@@ -120,7 +121,6 @@ jobs:
           git config user.email 'gridshadow@users.noreply.github.com'
           git commit -am "Creating release: $DEPLOYTEST_VERSION_NUMBER"
           git tag v$DEPLOYTEST_VERSION_NUMBER
-          git push
           git push origin v$DEPLOYTEST_VERSION_NUMBER
         shell: bash
         working-directory: main
@@ -167,11 +167,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
       - name: Post-release Version Number Update (Prerelease)
-        if: ${{ (inputs.versionType == 'release') && (env.GITHUB_REF_NAME == 'master') }}
+        if: ${{ inputs.versionType != 'release' }}
         run: |
           sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1"-DEV"/' include/test.hpp
           git add test.hpp
           git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
+          git pull -X theirs
           git push
         shell: bash
         working-directory: main
@@ -184,6 +185,7 @@ jobs:
           sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1"-DEV"/' include/test.hpp
           git add test.hpp
           git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
+          git pull -X theirs
           git push
         shell: bash
         working-directory: main
@@ -195,6 +197,7 @@ jobs:
           sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
           git add test.hpp
           git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
+          git pull -X theirs
           git push
         shell: bash
         working-directory: main
@@ -252,6 +255,7 @@ jobs:
           git config user.name 'gridshadow'
           git config user.email 'gridshadow@users.noreply.github.com'
           git commit -m "Release documentation: $DEPLOYTEST_VERSION_NUMBER"
+          git pull -X theirs
           git push
         shell: bash
         working-directory: gh-pages

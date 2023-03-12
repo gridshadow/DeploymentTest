@@ -3,6 +3,8 @@ name: Create Branch From Release
 on:
   workflow_dispatch:
 
+concurrency: deploy
+
 jobs:
  create-branch:
     name: Create Branch

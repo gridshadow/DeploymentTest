@@ -5,6 +5,8 @@ on:
     branches:
       - master
 
+concurrency: deploy
+
 jobs:
   deploy-latest:
     runs-on: ubuntu-latest
@@ -61,6 +63,7 @@ jobs:
           git config user.name 'gridshadow'
           git config user.email 'gridshadow@users.noreply.github.com'
           git commit -m "Updated latest documentation"
+          git pull -X theirs
           git push
         shell: bash
         working-directory: gh-pages
