@@ -30,7 +30,7 @@ jobs:
       - name: Run Doxygen
         run: (cat Doxyfile; echo "HTML_HEADER=header.html") | doxygen -
         shell: bash
-        working-derictory: main
+        working-directory: main
 
       - name: Build PDF Documentation
         run: make
