@@ -6,6 +6,7 @@ A test repository to test GitHub Actions to do the following:
     specific subdirectory in the `gh-pages` branch
   * Publish the Doxygen for the *latest* (development) code to the `latest`
     subdirectory in the gh-pages branch
+  * Create branches for patches to major.minor release builds
 
 ## Setup
 
