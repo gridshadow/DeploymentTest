@@ -1,0 +1,43 @@
+name: Doxygen GitHub Pages Deploy Latest
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen doxygen-latex graphviz -y
+        shell: bash
+
+      - name: Extract Version Number
+        run: |
+          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/p' test.hpp | tr '\n' '.' | sed '$s/.$//')
+          suffix=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_SUFFIX *\"([^\"]*)\"/\1/p' test.hpp)
+          build=$(git log -1 --format=%h)
+          echo "DEPLOYTEST_VERSION_NUMBER=$version$suffix+$build" >> $GITHUB_ENV
+        working-directory: include
+
+      - name: Run Doxygen
+        run: (cat Doxygen; echo "HTML_HEADER=header.html") | doxygen -
+        shell: bash
+
+      - name: Build PDF Documentation
+        run:
+          make
+          cp refman.pdf ../html/deployment-test-doc.pdf
+        working-directory: docs/latex
+
+      - name: Copy documentation to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: docs/html
+          target-folder: latest

@@ -1,0 +1,212 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionType:
+        description: 'Release Type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+        - release
+        - alpha
+        - beta
+        - rc
+      versionPrerelease:
+        description: 'alpha/beta/rc Version'
+        required: false
+        type: number
+      notes:
+        description: 'Release Notes (Use \n for new line)'
+        required: true
+        type: string
+      changes:
+        description: 'Changes (Use \n for new line)'
+        type: string
+        required: false
+      issues:
+        description: 'Known Issues (Use \n for new line)'
+        type: string
+        required: false
+
+jobs:
+ create-release:
+    name: Create Release
+    if: github.GITHUB_REF_TYPE == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen doxygen-latex graphviz zip make -y
+        shell: bash
+
+      - name: Update Version Number
+        if: ${{ inputs.versionType == 'release' }}
+        run: |
+          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/' test.hpp | tr '\n' '.' | sed '$s/.$//')
+          sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"\"/" test.hpp
+          echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION" >> $GITHUB_ENV
+        shell: bash
+        working-directory: include
+
+      - name: Update Version Number
+        if: ${{ inputs.versionType != 'release' }}
+        run: |
+          version=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_[A-Z]* *([0-9]+)/\1/' test.hpp | tr '\n' '.' | sed '$s/.$//')
+          sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
+          echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION-$VERSION_SUFFIX" >> $GITHUB_ENV
+        shell: bash
+        working-directory: include
+        env:
+          VERSION_SUFFIX: "${{ inputs.versionType }}${{ inputs.versionPrerelease }}"
+
+      - name: Strip Prerelease Changelogs
+        if: ${{ inputs.versionType == 'release' }}
+        run: awk "/^##/{P=0}P{next}/^## $DEPLOYTEST_VERSION_NUMBER-/{P=1;next}1" CHANGELOG.md
+        shell: bash
+
+      - name: Write Changelog
+        if: ${{ inputs.changes != '' }} && ${{ inputs.issues == '' }}
+        run: |
+          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "DEPLOYTEST_RELEASE_NOTES<<$EOF" >> $GITHUB_ENV
+          echo -e "$NOTES\n\n## Changes\n\n$CHANGELOG" >> $GITHUB_ENV
+          echo "$EOF" >> $GITHUB_ENV
+        shell: bash
+        env:
+          CHANGELOG: ${{ inputs.changes }}
+          NOTES: ${{ inputs.notes }}
+
+      - name: Write Changelog
+        if: ${{ inputs.changes != '' }} && ${{ inputs.issues != '' }}
+        run: |
+          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n### Known Issues\n\n$ISSUES\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "DEPLOYTEST_RELEASE_NOTES<<$EOF" >> $GITHUB_ENV
+          echo -e "$NOTES\n\n## Changes\n\n$CHANGELOG\n\n## Known Issues\n\n$ISSUES" >> $GITHUB_ENV
+          echo "$EOF" >> $GITHUB_ENV
+        shell: bash
+        env:
+          CHANGELOG: ${{ inputs.changes }}
+          NOTES: ${{ inputs.notes }}
+          ISSUES: ${{ inputs.issues }}
+
+      - name: Tag Release & Commit
+        run: |
+          git config user.name 'gridshadow'
+          git config user.email 'gridshadow@users.noreply.github.com'
+          git commit -am "Creating release: $DEPLOYTEST_VERSION_NUMBER"
+          git tag v$DEPLOYTEST_VERSION_NUMBER
+          git push origin v$DEPLOYTEST_VERSION_NUMBER
+        shell: bash
+
+      - name: Run Doxygen
+        run: (cat Doxygen; echo "HTML_HEADER=header.html") | doxygen -
+        shell: bash
+
+      - name: Build PDF Documentation
+        run: |
+          make
+          cp refman.pdf ../../$DEPLOYTEST_VERSION_NUMBER-doc.pdf
+          cp refman.pdf ../html/deployment-test-doc.pdf
+        shell: bash
+        working-directory: docs/latex
+
+      - name: Zip HTML Documentation
+        run: |
+          zip ../../$DEPLOYTEST_VERSION_NUMBER-docs.zip . -r
+          tar czf ../../$DEPLOYTEST_VERSION_NUMBER-docs.tar.gz *
+        shell: bash
+        working-directory: docs/html
+
+      - name: Create Release
+        if: ${{ inputs.versionType == 'release' }}
+        run: |
+          gh release create "v$DEPLOYTEST_VERSION_NUMBER" -t "v$DEPLOYTEST_VERSION_NUMBER" --verify-tag \
+            -n "$DEPLOYTEST_RELEASE_NOTES" $DEPLOYTEST_VERSION_NUMBER-doc.pdf \
+            $DEPLOYTEST_VERSION_NUMBER-docs.zip $DEPLOYTEST_VERSION_NUMBER-docs.tar.gz
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+
+      - name: Create Release
+        if: ${{ inputs.versionType != 'release' }}
+        run: |
+          gh release create "v$DEPLOYTEST_VERSION_NUMBER" -t "v$DEPLOYTEST_VERSION_NUMBER" --verify-tag \
+            -n "$DEPLOYTEST_RELEASE_NOTES" -p $DEPLOYTEST_VERSION_NUMBER-doc.pdf \
+            $DEPLOYTEST_VERSION_NUMBER-docs.zip $DEPLOYTEST_VERSION_NUMBER-docs.tar.gz
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+
+      - name: Copy documentation to GitHub Pages
+        if: ${{ inputs.versionType != 'release' }}
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: docs/html
+          target-folder: "${{ env.DEPLOYTEST_VERSION_NUMBER }}"
+
+      - name: Post-release Version Number Update
+        if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME == 'master' }}
+        run: |
+          sed -iE 's/(#define DEPLOYTEST_VERSION_MINOR *)([0-9]+)/\1$((\2+1))/e' include/test.hpp
+          sed -i 's/(#define DEPLOYTEST_VERSION_REVISION *)([0-9]+)/\10/' include/test.hpp
+          sed -i 's/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1"-DEV"/' include/test.hpp
+          git add test.hpp
+          git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
+          git push
+        shell: bash
+
+      - name: Post-release Version Number Update
+        if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME != 'master' }}
+        run: |
+          sed -i 's/(#define DEPLOYTEST_VERSION_REVISION *)([0-9]+)/\1$((\2+1))/' include/test.hpp
+          sed -i 's/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
+          git add test.hpp
+          git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
+          git push
+        shell: bash
+
+  update-documentation:
+    name: Update Documentation
+    needs: create-release
+    if: github.GITHUB_REF_TYPE == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        ref: gh-pages
+
+      - name: Strip Documentation Prereleases
+        if: ${{ inputs.versionType == 'release' }}
+        run: |
+          git rm -rf "$DEPLOYTEST_VERSION_NUMBER-*"
+          sed -i '/$DEPLOYTEST_VERSION_NUMBER-/d' versions.txt
+        shell: bash
+
+      - name: Add Documentation Reference To Release
+        run: |
+          echo "$DEPLOYTEST_VERSION_NUMBER" >> versions.txt
+          git add versions.txt
+        shell: bash
+
+      - name: Update Stable Symlink
+        if: ${{ inputs.versionType == 'release' }}
+        run: |
+          ln -sfn $DEPLOYTEST_VERSION_NUMBER stable
+          git add stable
+        shell: bash
+
+      - name: Commit Documentation Page Update
+        run: |
+          git config user.name 'gridshadow'
+          git config user.email 'gridshadow@users.noreply.github.com'
+          git commit -m "Linked release documentation: $DEPLOYTEST_VERSION_NUMBER"
+          git push
+        shell: bash
