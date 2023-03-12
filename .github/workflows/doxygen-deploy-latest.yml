@@ -25,7 +25,7 @@ jobs:
         working-directory: include
 
       - name: Run Doxygen
-        run: (cat Doxygen; echo "HTML_HEADER=header.html") | doxygen -
+        run: (cat Doxyfile; echo "HTML_HEADER=header.html") | doxygen -
         shell: bash
 
       - name: Build PDF Documentation
