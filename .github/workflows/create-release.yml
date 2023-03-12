@@ -31,7 +31,7 @@ on:
         required: false
 
 jobs:
- create-release:
+  create-release:
     name: Create Release
     if: github.GITHUB_REF_TYPE == 'branch'
     runs-on: ubuntu-latest
@@ -181,7 +181,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        ref: gh-pages
+        with:
+          ref: gh-pages
 
       - name: Strip Documentation Prereleases
         if: ${{ inputs.versionType == 'release' }}
