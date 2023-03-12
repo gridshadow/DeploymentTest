@@ -29,7 +29,7 @@ jobs:
         shell: bash
 
       - name: Build PDF Documentation
-        run:
+        run: |
           make
           cp refman.pdf ../html/deployment-test-doc.pdf
         working-directory: docs/latex
