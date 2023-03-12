@@ -2,7 +2,7 @@
 <tagfile doxygen_version="1.9.1">
   <compound kind="file">
     <name>test.hpp</name>
-    <path>/home/runner/work/DeploymentTest/DeploymentTest/include/</path>
+    <path>/home/runner/work/DeploymentTest/DeploymentTest/main/include/</path>
     <filename>test_8hpp.html</filename>
     <class kind="class">deploytest::TestClass</class>
     <namespace>deploytest</namespace>
