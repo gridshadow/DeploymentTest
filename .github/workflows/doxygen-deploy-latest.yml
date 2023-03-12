@@ -11,10 +11,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        path: main
 
       - name: Install Doxygen
         run: sudo apt-get install doxygen doxygen-latex graphviz -y
         shell: bash
+        working-directory: main
 
       - name: Extract Version Number
         run: |
@@ -22,22 +24,42 @@ jobs:
           suffix=$(sed -nr 's/^ *#define DEPLOYTEST_VERSION_SUFFIX *\"([^\"]*)\"/\1/p' test.hpp)
           build=$(git log -1 --format=%h)
           echo "DEPLOYTEST_VERSION_NUMBER=$version$suffix+$build" >> $GITHUB_ENV
-        working-directory: include
+        working-directory: main/include
 
       - name: Run Doxygen
         run: (cat Doxyfile; echo "HTML_HEADER=header.html") | doxygen -
         shell: bash
+        working-derictory: main
 
       - name: Build PDF Documentation
-        run: |
-          make
-          cp refman.pdf ../html/deployment-test-doc.pdf
-        working-directory: docs/latex
+        run: make
+        working-directory: main/docs/latex
 
-      - name: Copy documentation to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Checkout gh-pages
+        uses: actions/checkout@v3
+        path: gh-pages
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: docs/html
-          target-folder: latest
+          ref: gh-pages
+
+      - name: Copy Documentation to GitHub Pages
+        run: |
+          if [ -d latest ]
+          then
+            git rm -rf latest/*
+          else
+            mkdir latest
+          fi
+          cp -r ../main/docs/html/* latest/
+          cp ../main/docs/latex/refman.pdf latest/deployment-test-doc.pdf
+          git add latest
+        shell: bash
+        working-directory: gh-pages
+
+      - name: Commit Documentation to GitHub Pages
+        run: |
+          git config user.name 'gridshadow'
+          git config user.email 'gridshadow@users.noreply.github.com'
+          git commit -m "Updated latest documentation"
+          git push
+        shell: bash
+        working-directory: gh-pages

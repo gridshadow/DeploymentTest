@@ -38,10 +38,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        path: main
 
       - name: Install Doxygen
         run: sudo apt-get install doxygen doxygen-latex graphviz zip make -y
         shell: bash
+        working-directory: main
 
       - name: Update Version Number
         if: ${{ inputs.versionType == 'release' }}
@@ -50,7 +52,7 @@ jobs:
           sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"\"/" test.hpp
           echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION" >> $GITHUB_ENV
         shell: bash
-        working-directory: include
+        working-directory: main/include
 
       - name: Update Version Number
         if: ${{ inputs.versionType != 'release' }}
@@ -59,7 +61,7 @@ jobs:
           sed -i "s/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-$VERSION_SUFFIX\"/" test.hpp
           echo "DEPLOYTEST_VERSION_NUMBER=$VERSION_MAJOR.$VERSION_MINOR.$VERSION_REVISION-$VERSION_SUFFIX" >> $GITHUB_ENV
         shell: bash
-        working-directory: include
+        working-directory: main/include
         env:
           VERSION_SUFFIX: "${{ inputs.versionType }}${{ inputs.versionPrerelease }}"
 
@@ -67,6 +69,7 @@ jobs:
         if: ${{ inputs.versionType == 'release' }}
         run: awk "/^##/{P=0}P{next}/^## $DEPLOYTEST_VERSION_NUMBER-/{P=1;next}1" CHANGELOG.md
         shell: bash
+        working-directory: main
 
       - name: Write Changelog
         if: ${{ inputs.changes != '' }} && ${{ inputs.issues == '' }}
@@ -77,6 +80,7 @@ jobs:
           echo -e "$NOTES\n\n## Changes\n\n$CHANGELOG" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
         shell: bash
+        working-directory: main
         env:
           CHANGELOG: ${{ inputs.changes }}
           NOTES: ${{ inputs.notes }}
@@ -90,6 +94,7 @@ jobs:
           echo -e "$NOTES\n\n## Changes\n\n$CHANGELOG\n\n## Known Issues\n\n$ISSUES" >> $GITHUB_ENV
           echo "$EOF" >> $GITHUB_ENV
         shell: bash
+        working-directory: main
         env:
           CHANGELOG: ${{ inputs.changes }}
           NOTES: ${{ inputs.notes }}
@@ -103,25 +108,26 @@ jobs:
           git tag v$DEPLOYTEST_VERSION_NUMBER
           git push origin v$DEPLOYTEST_VERSION_NUMBER
         shell: bash
+        working-directory: main
 
       - name: Run Doxygen
         run: (cat Doxyfile; echo "HTML_HEADER=header.html") | doxygen -
         shell: bash
+        working-directory: main
 
       - name: Build PDF Documentation
         run: |
           make
           cp refman.pdf ../../$DEPLOYTEST_VERSION_NUMBER-doc.pdf
-          cp refman.pdf ../html/deployment-test-doc.pdf
         shell: bash
-        working-directory: docs/latex
+        working-directory: main/docs/latex
 
       - name: Zip HTML Documentation
         run: |
           zip ../../$DEPLOYTEST_VERSION_NUMBER-docs.zip . -r
           tar czf ../../$DEPLOYTEST_VERSION_NUMBER-docs.tar.gz *
         shell: bash
-        working-directory: docs/html
+        working-directory: main/docs/html
 
       - name: Create Release
         if: ${{ inputs.versionType == 'release' }}
@@ -130,6 +136,7 @@ jobs:
             -n "$DEPLOYTEST_RELEASE_NOTES" $DEPLOYTEST_VERSION_NUMBER-doc.pdf \
             $DEPLOYTEST_VERSION_NUMBER-docs.zip $DEPLOYTEST_VERSION_NUMBER-docs.tar.gz
         shell: bash
+        working-directory: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
@@ -140,17 +147,9 @@ jobs:
             -n "$DEPLOYTEST_RELEASE_NOTES" -p $DEPLOYTEST_VERSION_NUMBER-doc.pdf \
             $DEPLOYTEST_VERSION_NUMBER-docs.zip $DEPLOYTEST_VERSION_NUMBER-docs.tar.gz
         shell: bash
+        working-directory: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-
-      - name: Copy documentation to GitHub Pages
-        if: ${{ inputs.versionType != 'release' }}
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: docs/html
-          target-folder: "${{ env.DEPLOYTEST_VERSION_NUMBER }}"
 
       - name: Post-release Version Number Update
         if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME == 'master' }}
@@ -162,6 +161,7 @@ jobs:
           git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
           git push
         shell: bash
+        working-directory: main
 
       - name: Post-release Version Number Update
         if: ${{ inputs.versionType == 'release' }} && ${{ env.GITHUB_REF_NAME != 'master' }}
@@ -172,17 +172,27 @@ jobs:
           git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
           git push
         shell: bash
+        working-directory: main
 
-  update-documentation:
-    name: Update Documentation
-    needs: create-release
-    if: github.GITHUB_REF_TYPE == 'branch'
-    runs-on: ubuntu-latest
-    steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        path: ph-pages
         with:
           ref: gh-pages
+
+      - name: Copy Documentation to GitHub Pages
+        run: |
+          if [ -d latest ]
+          then
+            git rm -rf $DEPLOYTEST_VERSION_NUMBER/*
+          else
+            mkdir latest
+          fi
+          cp -r ../main/docs/html/* $DEPLOYTEST_VERSION_NUMBER/
+          cp ../main/docs/latex/refman.pdf $DEPLOYTEST_VERSION_NUMBER/deployment-test-doc.pdf
+          git add $DEPLOYTEST_VERSION_NUMBER
+        shell: bash
+        working-directory: gh-pages
 
       - name: Strip Documentation Prereleases
         if: ${{ inputs.versionType == 'release' }}
@@ -190,12 +200,14 @@ jobs:
           git rm -rf "$DEPLOYTEST_VERSION_NUMBER-*"
           sed -i '/$DEPLOYTEST_VERSION_NUMBER-/d' versions.txt
         shell: bash
+        working-directory: gh-pages
 
       - name: Add Documentation Reference To Release
         run: |
           echo "$DEPLOYTEST_VERSION_NUMBER" >> versions.txt
           git add versions.txt
         shell: bash
+        working-directory: gh-pages
 
       - name: Update Stable Symlink
         if: ${{ inputs.versionType == 'release' }}
@@ -203,11 +215,13 @@ jobs:
           ln -sfn $DEPLOYTEST_VERSION_NUMBER stable
           git add stable
         shell: bash
+        working-directory: gh-pages
 
-      - name: Commit Documentation Page Update
+      - name: Commit Documentation to GitHub Pages
         run: |
           git config user.name 'gridshadow'
           git config user.email 'gridshadow@users.noreply.github.com'
-          git commit -m "Linked release documentation: $DEPLOYTEST_VERSION_NUMBER"
+          git commit -m "Release documentation: $DEPLOYTEST_VERSION_NUMBER"
           git push
         shell: bash
+        working-directory: gh-pages
