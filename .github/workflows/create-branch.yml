@@ -6,7 +6,7 @@ on:
 concurrency: deploy
 
 jobs:
- create-branch:
+  create-branch:
     name: Create Branch
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
