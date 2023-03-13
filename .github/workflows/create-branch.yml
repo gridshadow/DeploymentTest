@@ -8,7 +8,7 @@ concurrency: deploy
 jobs:
  create-branch:
     name: Create Branch
-    if: github.GITHUB_REF_TYPE == 'tag'
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
       - name: Check Valid Tag
@@ -29,7 +29,9 @@ jobs:
 
       - name: Update Version Number
         run: |
-          sed -i 's/(#define DEPLOYTEST_VERSION_REVISION *)([0-9]+)/\1$((\2+1))/' include/test.hpp
+          version=$(sed -nr 's/#define DEPLOYTEST_VERSION_REVISION *([0-9]+)/\1/p' include/test.hpp)
+          version=$((version+1))
+          sed -i "s/\(#define DEPLOYTEST_VERSION_REVISION *\)[0-9]+/\1$version/" include/test.hpp
           sed -i 's/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
         shell: bash
 
@@ -38,4 +40,4 @@ jobs:
           git config user.name 'gridshadow'
           git config user.email 'gridshadow@users.noreply.github.com'
           git commit -am "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
-          git push origin ${GITHUB_REF_NAME%.*}
+          git push -u origin ${GITHUB_REF_NAME%.*}
