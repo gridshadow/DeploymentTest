@@ -232,7 +232,7 @@ jobs:
         if: ${{ inputs.versionType == 'release' }}
         run: |
           git rm -rf "$DEPLOYTEST_VERSION_NUMBER-*"
-          sed -i '/$DEPLOYTEST_VERSION_NUMBER-/d' versions.txt
+          sed -i "/$DEPLOYTEST_VERSION_NUMBER-/d" versions.txt
         shell: bash
         working-directory: gh-pages
 
