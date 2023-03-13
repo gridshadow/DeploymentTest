@@ -1,7 +1,7 @@
 name: Create Branch From Release
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
 
 concurrency: deploy
 
