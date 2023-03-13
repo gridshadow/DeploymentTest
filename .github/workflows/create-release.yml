@@ -235,7 +235,7 @@ jobs:
       - name: Strip Documentation Prereleases
         if: ${{ inputs.versionType == 'release' }}
         run: |
-          git rm -rf "$DEPLOYTEST_VERSION_NUMBER-*"
+          git rm -rf --ignore-unmatch "$DEPLOYTEST_VERSION_NUMBER-*"
           sed -i "/$DEPLOYTEST_VERSION_NUMBER-/d" versions.txt
         shell: bash
         working-directory: gh-pages
