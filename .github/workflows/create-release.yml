@@ -103,7 +103,8 @@ jobs:
       - name: Write Changelog (W/O Issues)
         if: ${{ (inputs.changes != '') && (inputs.issues != '') }}
         run: |
-          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n### Known Issues\n\n$ISSUES\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md
+          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n### Known Issues\n\n$ISSUES\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md.tmp
+          mv CHANGELOG.md.tmp CHANGELOG.md
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "DEPLOYTEST_RELEASE_NOTES<<$EOF" >> $GITHUB_ENV
           echo -e "$NOTES\n\n## Changes\n\n$CHANGELOG\n\n## Known Issues\n\n$ISSUES" >> $GITHUB_ENV
@@ -178,7 +179,7 @@ jobs:
         working-directory: main
 
       - name: Post-release Version Number Update (Release)
-        if: ${{ (inputs.versionType == 'release') && (env.GITHUB_REF_NAME == 'master') }}
+        if: ${{ (inputs.versionType == 'release') && (github.ref_name == 'master') }}
         run: |
           sed -iE 's/(#define DEPLOYTEST_VERSION_MINOR *)([0-9]+)/\1$((\2+1))/e' include/test.hpp
           sed -i 's/\(#define DEPLOYTEST_VERSION_REVISION *\)\([0-9]+\)/\10/' include/test.hpp
@@ -190,10 +191,10 @@ jobs:
         shell: bash
         working-directory: main
 
-      - name: Post-release Version Number Update (Path Release)
-        if: ${{ (inputs.versionType == 'release') && (env.GITHUB_REF_NAME != 'master') }}
+      - name: Post-release Version Number Update (Patch Release)
+        if: ${{ (inputs.versionType == 'release') && (github.ref_name != 'master') }}
         run: |
-          sed -i 's/\(#define DEPLOYTEST_VERSION_REVISION *\)\([0-9]+\)/\1$((\2+1))/' include/test.hpp
+          sed -iE 's/\(#define DEPLOYTEST_VERSION_REVISION *\)\([0-9]+\)/\1$((\2+1))/' include/test.hpp
           sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
           git add include/test.hpp
           git commit -m "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"

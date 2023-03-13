@@ -16,7 +16,7 @@
 /**
  * Minor version number of the Library
  */
-#define DEPLOYTEST_VERSION_MINOR    1
+#define DEPLOYTEST_VERSION_MINOR    2
 /**
  * Revision version number of the Library
  */
