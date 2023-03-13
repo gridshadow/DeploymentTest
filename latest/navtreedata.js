@@ -30,8 +30,11 @@ var NAVTREE =
       [ "TODO", "index.html#autotoc_md2", null ]
     ] ],
     [ "Change Log", "md_CHANGELOG.html", [
-      [ "0.1.0", "md_CHANGELOG.html#autotoc_md4", [
-        [ "Known Issues", "md_CHANGELOG.html#autotoc_md5", null ]
+      [ "0.6.0", "md_CHANGELOG.html#autotoc_md4", null ],
+      [ "Change Log", "md_CHANGELOG.html#autotoc_md5", [
+        [ "0.1.0", "md_CHANGELOG.html#autotoc_md6", [
+          [ "Known Issues", "md_CHANGELOG.html#autotoc_md7", null ]
+        ] ]
       ] ]
     ] ],
     [ "Namespaces", "namespaces.html", [
