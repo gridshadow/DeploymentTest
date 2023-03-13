@@ -57,11 +57,11 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html",
+"",
 "cpp/experimental/type_trait_variable_templates.html",
-"cpp/memory/destroy_at.html",
-"cpp/string/byte/strtok.html",
-"test_8hpp.html#a8900ac123566dea490b1b94d2e2b84f6"
+"cpp/locale/use_facet.html",
+"cpp/string/byte/strncpy.html",
+"index.html#autotoc_md1"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
