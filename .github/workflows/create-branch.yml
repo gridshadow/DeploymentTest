@@ -48,3 +48,4 @@ jobs:
           git config user.email 'gridshadow@users.noreply.github.com'
           git commit -am "Post-release version number update: $DEPLOYTEST_VERSION_NUMBER"
           git push -u origin ${GITHUB_REF_NAME%.*}
+        shell: bash
