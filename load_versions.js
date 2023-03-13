@@ -20,7 +20,7 @@ function loadVersions(callback) {
                     versionPartsB = versionPartsB.concat(Array(len).fill('0')).slice(0,len);
 
                     for(let i = 0; i != len; ++i) {
-                        const cmp = +(versionPartsA[i]>versionPartsB[i])||-(versionPartsB[i]>versionPartsA[i]);
+                        const cmp = parseInt(versionPartsA[i])-parseInt(versionPartsB[i]);
                         if(cmp != 0) {
                             return -cmp;
                         }
