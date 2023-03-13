@@ -30,14 +30,17 @@ var NAVTREE =
       [ "TODO", "index.html#autotoc_md2", null ]
     ] ],
     [ "Change Log", "md_CHANGELOG.html", [
-      [ "0.8.0", "md_CHANGELOG.html#autotoc_md4", null ],
+      [ "0.9.0", "md_CHANGELOG.html#autotoc_md4", null ],
       [ "Change Log", "md_CHANGELOG.html#autotoc_md5", [
-        [ "0.7.0", "md_CHANGELOG.html#autotoc_md6", null ]
+        [ "0.8.0", "md_CHANGELOG.html#autotoc_md6", null ]
       ] ],
       [ "Change Log", "md_CHANGELOG.html#autotoc_md7", [
-        [ "0.6.0", "md_CHANGELOG.html#autotoc_md8", null ],
-        [ "0.1.0", "md_CHANGELOG.html#autotoc_md9", [
-          [ "Known Issues", "md_CHANGELOG.html#autotoc_md10", null ]
+        [ "0.7.0", "md_CHANGELOG.html#autotoc_md8", null ]
+      ] ],
+      [ "Change Log", "md_CHANGELOG.html#autotoc_md9", [
+        [ "0.6.0", "md_CHANGELOG.html#autotoc_md10", null ],
+        [ "0.1.0", "md_CHANGELOG.html#autotoc_md11", [
+          [ "Known Issues", "md_CHANGELOG.html#autotoc_md12", null ]
         ] ]
       ] ]
     ] ],
