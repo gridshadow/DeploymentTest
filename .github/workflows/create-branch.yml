@@ -6,13 +6,6 @@ on:
 concurrency: deploy
 
 jobs:
-  debug-vars:
-    name: Debug vars
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "$GITHUB_CONTEXT"
-        shell: bash
-
   create-branch:
     name: Create Branch
     if: github.ref_type == 'tag'
