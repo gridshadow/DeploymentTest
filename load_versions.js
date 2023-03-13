@@ -1,6 +1,6 @@
 
 function loadVersions(callback) {
-    const url = "/DeploymentTest/versions.txt";
+    const url = "/DeploymentTest/versions.txt?" + new Date().getTime();
     const versionsFile = new XMLHttpRequest();
     versionsFile.open("GET",url,true);
     versionsFile.send();
