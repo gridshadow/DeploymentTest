@@ -16,7 +16,7 @@
 /**
  * Minor version number of the Library
  */
-#define DEPLOYTEST_VERSION_MINOR    11
+#define DEPLOYTEST_VERSION_MINOR    12
 /**
  * Revision version number of the Library
  */
@@ -28,7 +28,7 @@
  * are compared by ASCII ordering; therefore `-DEV < -alpha < -beta < -rc`
  * providing `DEV` is uppercase and `alpha`, `beta`, and `rc` are all lower case.
  */
-#define DEPLOYTEST_VERSION_SUFFIX ""
+#define DEPLOYTEST_VERSION_SUFFIX "-DEV"
 
 /**
  * The Deployment Test namespace
