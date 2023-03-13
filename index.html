@@ -31,13 +31,13 @@
          * @param {string} title
          * @param {string} folder
          */
-        function addVersion(versionList, title, folder) {
+        function addVersion(versionList, title, folder, github) {
             let dt = document.createElement("dt");
             dt.innerText = title+":";
             versionList.append(dt);
             let dd = document.createElement("dd");
-            dd.innerHTML = '<ul><li><a href="https://github.com/gridshadow/deploytest/releases/tag/v'
-                    + title + '">Release Files &amp; Change Log</a></li><li><a href="'
+            dd.innerHTML = '<ul><li><a href="https://github.com/gridshadow/DeploymentTest/releases/tag/v'
+                    + github + '">Release Files &amp; Change Log</a></li><li><a href="'
                     + folder + '/">Documentation (HTML)</a></li><li><a href="'
                     + folder + '/deployment-test-doc.pdf">Documentation (PDF)</a></li><li><a href="'
                     + folder + '/deployment-test.tag.xml">Doxygen tag File</a></li></ul>';
@@ -53,12 +53,12 @@
                     loading.parentElement.removeChild(loading);
                     let versionList = document.getElementById("version");
                     if(stable !== undefined) {
-                        addVersion(versionList, 'Stable (v'+stable+')', 'stable');
+                        addVersion(versionList, 'Stable (v'+stable+')', 'stable', stable);
                     }
                     let arrayLength = versions.length;
                     for(let i = 0; i != arrayLength; ++i) {
                         if(versions[i] !== stable) {
-                            addVersion(versionList, 'v' + versions[i], versions[i]);
+                            addVersion(versionList, 'v' + versions[i], versions[i], versions[i]);
                         }
                     }
                 }
