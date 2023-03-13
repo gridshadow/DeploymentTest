@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - master
+    path:
+      - 'include/**'
+      - '**.md'
+      - '**.js'
+      - '**.html'
+      - 'Doxyfile'
 
 concurrency: deploy
 
