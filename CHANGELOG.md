@@ -1,5 +1,11 @@
 
 # Change Log
+## 0.10.0
+
+Fixed SED using + notation
+
+
+# Change Log
 ## 0.9.0
 
 Changed version number increment
