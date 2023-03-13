@@ -6,9 +6,13 @@ on:
 concurrency: deploy
 
 jobs:
+  check-status:
+    steps:
+      run: echo "$GITHUB_CONTEXT"
+
   create-branch:
     name: Create Branch
-    if: ${{ github.ref_type == 'tag' }}
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
       - name: Check Valid Tag
