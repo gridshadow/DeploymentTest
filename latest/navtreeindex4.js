@@ -6,6 +6,8 @@ var NAVTREEINDEX4 =
 "md_CHANGELOG.html#autotoc_md4":[1,0],
 "md_CHANGELOG.html#autotoc_md5":[1,1],
 "md_CHANGELOG.html#autotoc_md6":[1,1,0],
+"md_CHANGELOG.html#autotoc_md7":[1,1,1],
+"md_CHANGELOG.html#autotoc_md8":[1,1,1,0],
 "namespacedeploytest.html":[2,0,0],
 "namespaces.html":[2,0],
 "pages.html":[],
