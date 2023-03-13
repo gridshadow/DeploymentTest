@@ -1,6 +1,13 @@
 
 # Change Log
 
+## 0.6.0
+
+Fixed ( to \(
+
+
+# Change Log
+
 
 ## 0.1.0
 
