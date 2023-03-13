@@ -88,7 +88,7 @@ jobs:
       - name: Write Changelog (With Issues)
         if: ${{ (inputs.changes != '') && (inputs.issues == '') }}
         run: |
-          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md.tmp
+          echo -e "## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md.tmp
           mv CHANGELOG.md.tmp CHANGELOG.md
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "DEPLOYTEST_RELEASE_NOTES<<$EOF" >> $GITHUB_ENV
@@ -103,7 +103,7 @@ jobs:
       - name: Write Changelog (W/O Issues)
         if: ${{ (inputs.changes != '') && (inputs.issues != '') }}
         run: |
-          echo -e "\n## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n### Known Issues\n\n$ISSUES\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md.tmp
+          echo -e "## $DEPLOYTEST_VERSION_NUMBER\n\n$CHANGELOG\n\n### Known Issues\n\n$ISSUES\n\n" | (head -n 2 CHANGELOG.md; cat -; tail -n +2 CHANGELOG.md) > CHANGELOG.md.tmp
           mv CHANGELOG.md.tmp CHANGELOG.md
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "DEPLOYTEST_RELEASE_NOTES<<$EOF" >> $GITHUB_ENV
