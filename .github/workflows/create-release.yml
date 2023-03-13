@@ -181,8 +181,7 @@ jobs:
       - name: Post-release Version Number Update (Release)
         if: ${{ (inputs.versionType == 'release') && (github.ref_name == 'master') }}
         run: |
-          version=$(sed -nr 's/#define DEPLOYTEST_VERSION_MINOR *([0-9]+)/\1/p' include/test.hpp)
-          version=$((version+1))
+          export version=$(($(sed -nr 's/#define DEPLOYTEST_VERSION_MINOR *([0-9]+)/\1/p' include/test.hpp)+1))
           sed -i "s/\(#define DEPLOYTEST_VERSION_MINOR *\)[0-9]+/\1$version/" include/test.hpp
           sed -i 's/\(#define DEPLOYTEST_VERSION_REVISION *\)\([0-9]+\)/\10/' include/test.hpp
           sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1"-DEV"/' include/test.hpp
@@ -196,8 +195,7 @@ jobs:
       - name: Post-release Version Number Update (Patch Release)
         if: ${{ (inputs.versionType == 'release') && (github.ref_name != 'master') }}
         run: |
-          version=$(sed -nr 's/#define DEPLOYTEST_VERSION_REVISION *([0-9]+)/\1/p' include/test.hpp)
-          version=$((version+1))
+          export version=$(($(sed -nr 's/#define DEPLOYTEST_VERSION_REVISION *([0-9]+)/\1/p' include/test.hpp)+1))
           sed -i "s/\(#define DEPLOYTEST_VERSION_REVISION *\)[0-9]+/\1$version/" include/test.hpp
           sed -i 's/\(#define DEPLOYTEST_VERSION_SUFFIX *\)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
           git add include/test.hpp

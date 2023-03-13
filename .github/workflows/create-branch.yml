@@ -29,8 +29,7 @@ jobs:
 
       - name: Update Version Number
         run: |
-          version=$(sed -nr 's/#define DEPLOYTEST_VERSION_REVISION *([0-9]+)/\1/p' include/test.hpp)
-          version=$((version+1))
+          export version=$(($(sed -nr 's/#define DEPLOYTEST_VERSION_REVISION *([0-9]+)/\1/p' include/test.hpp)+1))
           sed -i "s/\(#define DEPLOYTEST_VERSION_REVISION *\)[0-9]+/\1$version/" include/test.hpp
           sed -i 's/(#define DEPLOYTEST_VERSION_SUFFIX *)\"[^\"]*\"/\1\"-DEV\"/' include/test.hpp
         shell: bash
