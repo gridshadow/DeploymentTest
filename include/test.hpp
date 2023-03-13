@@ -20,7 +20,7 @@
 /**
  * Revision version number of the Library
  */
-#define DEPLOYTEST_VERSION_REVISION 0
+#define DEPLOYTEST_VERSION_REVISION 1
 /**
  * Pre-release suffix of the Library
  *
@@ -28,7 +28,7 @@
  * are compared by ASCII ordering; therefore `-DEV < -alpha < -beta < -rc`
  * providing `DEV` is uppercase and `alpha`, `beta`, and `rc` are all lower case.
  */
-#define DEPLOYTEST_VERSION_SUFFIX ""
+#define DEPLOYTEST_VERSION_SUFFIX "-DEV"
 
 /**
  * The Deployment Test namespace
