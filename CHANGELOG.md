@@ -1,5 +1,11 @@
 
 # Change Log
+## 0.8.0
+
+Create Branch Changed
+
+
+# Change Log
 ## 0.7.0
 
 Added --ignore-unmatch to git rm
