@@ -1,6 +1,13 @@
 
 # Change Log
 
+## 0.5.0
+
+Fixed matching \" on sed command
+
+
+# Change Log
+
 
 ## 0.1.0
 
