@@ -1,6 +1,13 @@
 
 # Change Log
 
+## 0.3.0
+
+Fixed release build
+
+
+# Change Log
+
 
 ## 0.1.0
 
