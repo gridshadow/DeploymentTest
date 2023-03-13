@@ -79,7 +79,7 @@
   </compound>
   <compound kind="page">
     <name>index</name>
-    <title>Deployment test</title>
+    <title></title>
     <filename>index.html</filename>
     <docanchor file="index.html">md_README</docanchor>
   </compound>

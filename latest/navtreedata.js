@@ -25,8 +25,15 @@
 var NAVTREE =
 [
   [ "Deployment Test", "index.html", [
-    [ "Setup", "index.html#autotoc_md1", null ],
-    [ "Change Log", "md_CHANGELOG.html", null ],
+    [ "Deployment test", "index.html#autotoc_md0", [
+      [ "Setup", "index.html#autotoc_md1", null ],
+      [ "TODO", "index.html#autotoc_md2", null ]
+    ] ],
+    [ "Change Log", "md_CHANGELOG.html", [
+      [ "0.1.0", "md_CHANGELOG.html#autotoc_md4", [
+        [ "Known Issues", "md_CHANGELOG.html#autotoc_md5", null ]
+      ] ]
+    ] ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ]
     ] ],
@@ -50,11 +57,11 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"",
+"annotated.html",
 "cpp/experimental/type_trait_variable_templates.html",
-"cpp/locale/use_facet.html",
-"cpp/string/byte/strncpy.html",
-"md_CHANGELOG.html"
+"cpp/memory/destroy_at.html",
+"cpp/string/byte/strtok.html",
+"test_8hpp.html#a8900ac123566dea490b1b94d2e2b84f6"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
